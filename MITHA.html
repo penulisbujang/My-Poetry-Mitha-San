@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Buat Cantiknya Mas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --red-700:#b91c1c; --red-500:#ef4444; --pink-500:#ec4899; --muted-500:#6b7280; }
+    html, body { height:100%; margin:0; font-family:"Playfair Display", serif; background:linear-gradient(180deg,#fff6f7 0%,#fff 60%); color:#111827; box-sizing:border-box; }
+    .font-dancing { font-family: "Dancing Script", cursive; }
+    .envelope-wrapper { perspective:1200px; display:flex; align-items:center; justify-content:center; height:100vh; padding:24px; }
+    .envelope { width:340px; height:230px; position:relative; transform-style:preserve-3d; cursor:pointer; transition:transform .25s ease; }
+    .envelope:hover { transform:scale(1.03); }
+    .envelope-body { position:absolute; inset:0; border-radius:10px; background:linear-gradient(145deg,var(--red-500) 0%,var(--red-700) 100%); box-shadow:0 18px 40px rgba(185,28,28,.25); z-index:2; overflow:hidden; display:flex; align-items:center; justify-content:center; backface-visibility:hidden; }
+    .envelope-flap { position:absolute; top:-2px; left:0; width:100%; height:52%; z-index:6; transform-origin:top center; transition:transform .65s cubic-bezier(.2,.9,.2,1); backface-visibility:hidden; background:linear-gradient(180deg,#ff6b6b 0%,var(--red-500) 60%,var(--red-700) 100%); clip-path:polygon(0 0,100% 0,50% 100%); box-shadow:0 8px 20px rgba(0,0,0,.08); }
+    .envelope.open .envelope-flap { transform:rotateX(-180deg); }
+    .heart-seal { position:absolute; top:46%; left:50%; transform:translate(-50%,-50%); z-index:7; width:56px; height:56px; display:grid; place-items:center; border-radius:999px; background:radial-gradient(circle at 30% 30%,#ff9aa2,#ff6b6b 45%,var(--red-700) 100%); box-shadow:0 6px 18px rgba(0,0,0,.12); animation:sealPulse 1.6s ease-in-out infinite; pointer-events:none; }
+    .heart-seal img { width:56px; height:56px; object-fit:cover; border-radius:999px; display:block; }
+    .heart-seal svg { width:22px; height:22px; fill:white; }
+    .envelope.open .heart-seal { opacity:0; transition:opacity .25s ease; }
+    @keyframes sealPulse { 0% { transform:translate(-50%,-50%) scale(1);} 50%{ transform:translate(-50%,-50%) scale(1.08);} 100%{ transform:translate(-50%,-50%) scale(1);} }
+    .letter { position:absolute; left:50%; top:22px; transform:translateX(-50%); width:300px; height:180px; border-radius:8px; background:linear-gradient(180deg,#fffaf9,#ffffff 60%); box-shadow:0 6px 18px rgba(15,23,42,0.06); padding:18px; z-index:4; transition:transform .65s cubic-bezier(.2,.9,.2,1); display:flex; align-items:center; justify-content:center; backface-visibility:hidden; }
+    .envelope.open .letter { transform:translateX(-50%) translateY(-185px); }
+    .card-content { text-align:center; width:100%; opacity:0; transform:scale(.86); transition:opacity .4s ease, transform .4s ease; padding:6px 8px; }
+    .card-content.visible { opacity:1; transform:scale(1); }
+    .card-content h2 { margin:0 0 6px 0; font-weight:600; font-size:20px; }
+    .card-content p { margin:0 0 12px 0; line-height:1.25; font-size:14px; color:#374151; }
+    .btn {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      border: none;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.15;
+      word-spacing: 4px;
+      text-align: center;
+    }
+
+    .btn-yes { background:linear-gradient(135deg,var(--pink-500) 0%,#db2777 100%); color:white; box-shadow:0 8px 20px rgba(219,39,119,.18); transition:transform .22s ease; }
+    .btn-yes:active { transform:scale(.98); }
+    .actions {
+      position: relative;
+      display: flex;
+      gap: 14px;         /* jarak antar tombol saat posisi normal */
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;  /* menjaga tinggi tetap rapi */
+    }
+
+    .btn-no { position:absolute; right:6px; bottom:0px; background:linear-gradient(135deg,#9ca3af 0%,var(--muted-500) 100%); color:white; transition:left .28s ease, top .28s ease, transform .18s ease, right .18s ease, bottom .18s ease; }
+    .btn-no.fleeing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  word-break: normal;
+  min-width: 140px;
+  max-width: 72vw;
+  padding: 8px 18px;
+  box-sizing: border-box;
+}
+
+    .btn-no:active { transform:scale(.98); }
+
+    /* Photo frame overlay */
+    .photo-frame { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:400; background:rgba(10,6,8,0.45); backdrop-filter:blur(4px); padding:28px; }
+    .photo-frame.show { display:flex; }
+    .frame-card { background:linear-gradient(180deg,#fffaf9,#fff); border-radius:14px; padding:18px; box-shadow:0 30px 80px rgba(15,23,42,0.12); position:relative; display:flex; flex-direction:column; align-items:center; }
+    .frame-decor { width:100%; height:18px; border-radius:8px; background:linear-gradient(90deg,#ffe3e8,#ffdbe6); margin-bottom:8px; }
+    .framed-photo { width:360px; height:360px; object-fit:cover; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); border:12px solid #fff; }
+    .frame-caption { margin-top:12px; font-size:16px; color:#6b7280; }
+    .frame-close { position:absolute; top:10px; right:10px; background:#ef4444; color:white; border:none; padding:8px 10px; border-radius:999px; cursor:pointer; }
+
+    /* LDR Note overlay */
+    .ldr-note { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:600; background:linear-gradient(180deg, rgba(255,240,246,0.95), rgba(255,255,255,0.98)); backdrop-filter: blur(4px); padding:28px; }
+    .ldr-note.show { display:flex; }
+    .ldr-card { max-width:720px; width:calc(100% - 48px); background:linear-gradient(180deg,#fff,#fffaf9); border-radius:14px; padding:28px; box-shadow:0 30px 90px rgba(15,23,42,0.12); text-align:center; display:flex; flex-direction:column; align-items:center; }
+    .ldr-message { font-family: 'Dancing Script', cursive; font-size:20px; color:#6b214f; line-height:1.45; margin-bottom:12px; }
+    .ldr-bg-decor { width:120px; height:6px; border-radius:6px; background:linear-gradient(90deg,#ffdbe6,#ffe3e8); margin-bottom:8px; }
+    .ldr-close { margin-top:8px; padding:8px 12px; border-radius:999px; background:#ef4444; color:white; border:none; cursor:pointer; font-weight:600; }
+
+    .success-screen { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:120; background:radial-gradient(circle at center, rgba(255,245,247,.8), rgba(255,255,255,.95)); backdrop-filter:blur(6px); padding:24px; }
+    .success-screen.show { display:flex; }
+    .success-card { width:min(540px,94%); border-radius:12px; padding:28px; background:linear-gradient(180deg,#fff 0%,#fffaf9 100%); box-shadow:0 30px 80px rgba(15,23,42,.08); text-align:center; position:relative; overflow:visible; }
+    .close-success { margin-top:8px; padding:8px 12px; border-radius:999px; background:#ef4444; color:white; border:none; cursor:pointer; font-weight:600; }
+    .floating-hearts { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+    .floating-heart { position:absolute; bottom:-80px; font-size:20px; opacity:0; transform-origin:center; animation:heartFloat linear forwards; will-change:transform,opacity; user-select:none; }
+    @keyframes heartFloat { 0% { transform:translateY(0) scale(.9) rotate(0deg); opacity:0; } 8%{ opacity:1; } 60%{ opacity:1; } 100%{ transform:translateY(-120vh) scale(1.15) rotate(720deg); opacity:0; } }
+    @media (max-width:420px) { .envelope { width:300px; height:210px; } .letter { width:270px; height:170px; } .framed-photo { width:260px; height:260px; } .ldr-card { padding:18px; } .ldr-message { font-size:18px; } }
+    .wm{
+  position: fixed;
+  bottom: 10px;
+  right: 15px;
+  opacity: 0.6;
+  font-size: 14px;
+  font-family: cursive;
+  color: #f9a8d4;
+  text-shadow: 0 0 5px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+
+  </style>
+</head>
+<body>
+  <div class="envelope-wrapper" aria-live="polite">
+    <div class="envelope" id="envelope" role="button" aria-pressed="false" tabindex="0" aria-label="Amplop valentine, klik untuk membuka">
+      <div class="envelope-flap" aria-hidden="true"></div>
+      <div class="heart-seal" aria-hidden="true">
+        <!-- Ganti gambar di bawah dengan images/cewekmu.jpg jika ingin foto di seal -->
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.9-9-8.1C1.9 9.6 5 6 8.5 6 10.1 6 12 7.1 12 7.1S13.9 6 15.5 6C19 6 22.1 9.6 21 12.9 19.5 16.1 12 21 12 21z"></path></svg>
+      </div>
+      <div class="envelope-body" aria-hidden="true"></div>
+      <div class="letter" id="letter" aria-hidden="true">
+        <div class="card-content" id="cardContent">
+          <h2 class="font-dancing">Untuk Dek Mitha</h2>
+          <p>Jika Dek Cantiknya Mas berkenan, bolehkah Mas menjadi yang paling bahagia memandangi tiap waktu pantulan rembulan dalam senyuman yang Sayangnya Mas suguhkan itu?</p>
+          <div class="actions" id="actions">
+            <button class="btn btn-yes" id="btnYes" type="button">Boleh Mas ◝(ᵔᗜᵔ)◜</button>
+            <button class="btn btn-no" id="btnNo" type="button" aria-label="Tombol tidak" data-index="0">NGGAK (╥﹏╥)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo frame overlay yang muncul saat klik Iya -->
+  <div class="photo-frame" id="photoFrame" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="frame-card" role="document">
+      <button class="frame-close" id="frameClose" aria-label="Tutup bingkai">Tutup</button>
+      <div class="frame-decor" aria-hidden="true"></div>
+    
+     <img id="framedPhoto" class="framed-photo" src="Foto.png" alt="Foto" loading="lazy" />
+      <div class="frame-caption font-dancing">いつもそばにいてくれてありがとう</div>
+    </div>
+  </div>
+
+  <!-- LDR message that appears after closing the frame -->
+  <div class="ldr-note" id="ldrNote" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="ldr-card" role="document">
+      <div class="ldr-bg-decor" aria-hidden="true"></div>
+      <div class="ldr-message">Gomenne Sayang, kita baru bisa lewat LDR dulu. Pas udah ketemu, kita bisa mengukir cerita kita berdua lebih dari yang udah kita lewati selama ini.</div>
+      <button class="ldr-close" id="ldrClose">Wakatta Kakkoinya Adek..</button>
+    </div>
+  </div>
+
+  <div class="success-screen" id="successScreen" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="success-card" role="document">
+      <h3 class="font-dancing">Yeay</h3>
+      <p>Terima kasih. Pesanmu sudah terkirim dengan manis</p>
+      <div>
+        <button class="close-success" id="closeSuccess" type="button">Tutup</button>
+      </div>
+      <div class="floating-hearts" id="floatingHearts" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const envelope = document.getElementById('envelope');
+      const cardContent = document.getElementById('cardContent');
+      const btnYes = document.getElementById('btnYes');
+      const btnNo = document.getElementById('btnNo');
+      const successScreen = document.getElementById('successScreen');
+      const closeSuccess = document.getElementById('closeSuccess');
+      const floatingHearts = document.getElementById('floatingHearts');
+      const photoFrame = document.getElementById('photoFrame');
+      const frameClose = document.getElementById('frameClose');
+      const framedPhoto = document.getElementById('framedPhoto');
+      const ldrNote = document.getElementById('ldrNote');
+      const ldrClose = document.getElementById('ldrClose');
+
+      let opened = false;
+
+      const phrases = [
+        'Yang benerr Sayang? 😢',
+        'Ihh Cantiknya Mas nii 😭',
+        'Jangan gituuuu 😿',
+        'SEBELLLLL 😩',
+      ];
+
+      function openEnvelope() {
+        if (opened) return;
+        opened = true;
+        envelope.classList.add('open');
+        envelope.setAttribute('aria-pressed', 'true');
+        setTimeout(() => { cardContent.classList.add('visible'); }, 400);
+      }
+      function closeEnvelope() { envelope.classList.remove('open'); envelope.setAttribute('aria-pressed', 'false'); cardContent.classList.remove('visible'); opened = false; }
+
+      envelope.addEventListener('click', function (e) { if (!opened) openEnvelope(); });
+      envelope.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!opened) openEnvelope(); } });
+
+      // saat klik Iya, tampilkan bingkai foto
+      btnYes.addEventListener('click', function (e) {
+        e.stopPropagation();
+        showPhotoFrame();
+      });
+
+      function showPhotoFrame() {
+
+        photoFrame.classList.add('show');
+        photoFrame.setAttribute('aria-hidden', 'false');
+        // sedikit animasi kecil
+        photoFrame.querySelector('.frame-card').animate([
+          { transform: 'translateY(12px) scale(.98)', opacity: 0 },
+          { transform: 'translateY(0) scale(1)', opacity: 1 }
+        ], { duration: 420, easing: 'cubic-bezier(.2,.9,.2,1)' });
+      }
+
+      function hidePhotoFrame() {
+        photoFrame.classList.remove('show');
+        photoFrame.setAttribute('aria-hidden', 'true');
+      }
+
+      function showLdrNote() {
+        ldrNote.classList.add('show');
+        ldrNote.setAttribute('aria-hidden', 'false');
+        // small entrance animation
+        ldrNote.querySelector('.ldr-card').animate([
+          { transform: 'translateY(12px) scale(.98)', opacity: 0 },
+          { transform: 'translateY(0) scale(1)', opacity: 1 }
+        ], { duration: 420, easing: 'cubic-bezier(.2,.9,.2,1)' });
+      }
+
+      function hideLdrNote() {
+        ldrNote.classList.remove('show');
+        ldrNote.setAttribute('aria-hidden', 'true');
+        resetNoPosition();
+      }
+
+      frameClose.addEventListener('click', function () { hidePhotoFrame(); showLdrNote(); });
+      photoFrame.addEventListener('click', function (e) { if (e.target === photoFrame) { hidePhotoFrame(); showLdrNote(); } });
+      frameClose.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); frameClose.click(); } });
+
+      ldrClose.addEventListener('click', function () { hideLdrNote(); });
+      ldrNote.addEventListener('click', function (e) { if (e.target === ldrNote) hideLdrNote(); });
+
+      closeSuccess.addEventListener('click', function () { successScreen.classList.remove('show'); successScreen.setAttribute('aria-hidden','true'); clearHearts(); resetNoPosition(); closeEnvelope(); });
+      successScreen.addEventListener('click', function (e) { if (e.target === successScreen) { successScreen.classList.remove('show'); successScreen.setAttribute('aria-hidden','true'); clearHearts(); resetNoPosition(); closeEnvelope(); } });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (ldrNote.classList.contains('show')) hideLdrNote(); else if (photoFrame.classList.contains('show')) { hidePhotoFrame(); showLdrNote(); } else if (successScreen.classList.contains('show')) { successScreen.classList.remove('show'); successScreen.setAttribute('aria-hidden','true'); clearHearts(); resetNoPosition(); closeEnvelope(); } else if (opened) closeEnvelope(); } });
+
+      function showSuccess() {
+        successScreen.classList.add('show');
+        successScreen.setAttribute('aria-hidden', 'false');
+        generateHeartsBurst(16);
+        cardContent.classList.remove('visible');
+        envelope.setAttribute('aria-pressed', 'true');
+      }
+      function hideSuccess() { successScreen.classList.remove('show'); successScreen.setAttribute('aria-hidden', 'true'); clearHearts(); closeEnvelope(); }
+      function clearHearts() { while (floatingHearts.firstChild) floatingHearts.removeChild(floatingHearts.firstChild); }
+      function generateHeartsBurst(count) { clearHearts(); for (let i=0;i<count;i++) createHeart(i,count); setTimeout(()=>{ for (let i=0;i<8;i++) createHeart(i+count,8); },1400); }
+      function createHeart(seed,total){ const el=document.createElement('div'); el.className='floating-heart'; el.innerHTML='<svg viewBox="0 0 24 24" width="100%" height="100%" aria-hidden="true"><path fill="#FF2D55" d="M12 21s-7.5-4.9-9-8.1C1.9 9.6 5 6 8.5 6 10.1 6 12 7.1 12 7.1S13.9 6 15.5 6C19 6 22.1 9.6 21 12.9 19.5 16.1 12 21 12 21z"/></svg>'; const size=Math.floor(16+Math.random()*36); el.style.width=size+'px'; el.style.height=size+'px'; const leftPercent=Math.floor(8+Math.random()*84); el.style.left=leftPercent+'%'; const duration=(3+Math.random()*3).toFixed(2)+'s'; const delay=(Math.random()*0.6).toFixed(2)+'s'; el.style.animationDuration=duration; el.style.animationDelay=delay; floatingHearts.appendChild(el); el.addEventListener('animationend',function(){ if (el && el.parentNode) el.parentNode.removeChild(el); }); }
+
+      // DODGE logic for "NGGAK (╥﹏╥)"
+      btnNo.addEventListener('click', function (e) {
+        e.stopPropagation(); e.preventDefault();
+        let idx = parseInt(btnNo.getAttribute('data-index') || '0', 10);
+        idx = idx + 1;
+        btnNo.setAttribute('data-index', idx.toString());
+        const base = phrases[idx % phrases.length];
+        const repeat = Math.floor(1 + Math.random()*3);
+        const emot = ''.repeat(Math.floor(1 + Math.random()*2));
+        const phrase = base.replace(/\?+|\.\.\.|!+$/,'') + ' ' + emot;
+        const stretched = phrase.replace(/r{1,3}/, match => match + 'r'.repeat(Math.floor(Math.random()*4)));
+        btnNo.textContent = stretched.trim();
+        btnNo.setAttribute('aria-label', stretched.trim());
+
+        const envRect = envelope.getBoundingClientRect();
+        const btnRect = btnNo.getBoundingClientRect();
+        const cx = envRect.left + envRect.width/2;
+        const cy = envRect.top + envRect.height/2;
+        const minR = Math.max(envRect.width, envRect.height)/2 + 12;
+        const maxR = minR + 120;
+        const r = minR + Math.random() * (maxR - minR);
+        const angle = Math.random() * Math.PI * 2;
+        let x = Math.floor(cx + r * Math.cos(angle) - btnRect.width/2);
+        let y = Math.floor(cy + r * Math.sin(angle) - btnRect.height/2);
+        const pad = 8;
+        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+        x = Math.min(Math.max(pad, x), vw - btnRect.width - pad);
+        y = Math.min(Math.max(pad, y), vh - btnRect.height - pad);
+        btnNo.style.position = 'fixed';
+        btnNo.style.left = x + 'px';
+        btnNo.style.top = y + 'px';
+        btnNo.style.right = 'auto';
+        btnNo.style.bottom = 'auto';
+        btnNo.style.transform = 'rotate(' + (Math.random()*36-18).toFixed(1) + 'deg)';
+        btnNo.style.zIndex = 250;
+        btnNo.classList.add('fleeing');
+      });
+
+      btnNo.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btnNo.click(); } });
+
+      function resetNoPosition() {
+        const actions = document.getElementById('actions');
+        actions.appendChild(btnNo);
+        btnNo.classList.remove('fleeing');
+
+        btnNo.style.position = 'relative';
+        btnNo.style.left = '';
+        btnNo.style.top = '';
+        btnNo.style.right = '';
+        btnNo.style.bottom = '';
+        btnNo.style.transform = '';
+        btnNo.style.zIndex = '';
+        btnNo.style.marginLeft = '6px';
+
+        btnNo.textContent = 'NGGAK (╥﹏╥)';
+        btnNo.dataset.index = '0';
+      }
+
+      // ketika bingkai ditutup, reset posisi tombol no juga
+      frameClose.addEventListener('click', resetNoPosition);
+      envelope.addEventListener('dblclick', function () { if (opened) closeEnvelope(); resetNoPosition(); });
+
+      // initial state
+      resetNoPosition();
+    });
+  </script>
+      <div class="wm">@penulis_bujang</div>
+</body>
+</html>
