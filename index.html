@@ -12,7 +12,7 @@
     .font-dancing { font-family: "Dancing Script", cursive; }
     .envelope-wrapper { perspective:1200px; display:flex; align-items:center; justify-content:center; height:100vh; padding:24px; }
     .envelope { width:340px; height:230px; position:relative; transform-style:preserve-3d; cursor:pointer; transition:transform .25s ease; }
-    .envelope:hover { transform:scale(1.03); }
+    .envelope:hover {transform: none;}}
     .envelope-body { position:absolute; inset:0; border-radius:10px; background:linear-gradient(145deg,var(--red-500) 0%,var(--red-700) 100%); box-shadow:0 18px 40px rgba(185,28,28,.25); z-index:2; overflow:hidden; display:flex; align-items:center; justify-content:center; backface-visibility:hidden; }
     .envelope-flap { position:absolute; top:-2px; left:0; width:100%; height:52%; z-index:6; transform-origin:top center; transition:transform .65s cubic-bezier(.2,.9,.2,1); backface-visibility:hidden; background:linear-gradient(180deg,#ff6b6b 0%,var(--red-500) 60%,var(--red-700) 100%); clip-path:polygon(0 0,100% 0,50% 100%); box-shadow:0 8px 20px rgba(0,0,0,.08); }
     .envelope.open .envelope-flap { transform:rotateX(-180deg); }
@@ -328,3 +328,4 @@
 </body>
 
 </html>
+
