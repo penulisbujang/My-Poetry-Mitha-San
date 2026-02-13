@@ -84,6 +84,126 @@
     .ldr-message { font-family: 'Dancing Script', cursive; font-size:20px; color:#6b214f; line-height:1.45; margin-bottom:12px; }
     .ldr-bg-decor { width:120px; height:6px; border-radius:6px; background:linear-gradient(90deg,#ffdbe6,#ffe3e8); margin-bottom:8px; }
     .ldr-close { margin-top:8px; padding:8px 12px; border-radius:999px; background:#ef4444; color:white; border:none; cursor:pointer; font-weight:600; }
+    /* CELEBRATION STYLES */
+.celebration-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  background: radial-gradient(circle at 30% 20%, rgba(255,235,240,0.95), rgba(255,255,255,0.98));
+  backdrop-filter: blur(4px);
+  padding: 28px;
+}
+.celebration-overlay.show { display:flex; }
+
+.celebration-card {
+  position: relative;
+  width: min(820px, 96%);
+  max-width: 920px;
+  border-radius: 14px;
+  padding: 28px 26px 20px;
+  background: linear-gradient(180deg,#fffaf8,#fff);
+  box-shadow: 0 30px 120px rgba(15,23,42,0.12);
+  overflow: hidden;
+  text-align: center;
+}
+
+.celebration-message {
+  font-size: 18px;
+  color: #5b2b48;
+  line-height: 1.55;
+  margin: 8px auto 14px;
+  max-width: 760px;
+  padding: 8px 12px;
+  white-space: pre-line;
+}
+
+/* ribbons */
+.ribbons { position:absolute; inset:0; pointer-events:none; }
+.ribbon {
+  position:absolute;
+  top: 8px;
+  width: 220px;
+  height: 34px;
+  background: linear-gradient(90deg,#ffdbe6,#ffd0e0);
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+  transform: rotate(-8deg);
+  left: -30px;
+  opacity: .95;
+}
+.ribbon-right { right: -30px; left: auto; transform: rotate(8deg); }
+
+/* balloons */
+.balloon-area { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.balloon {
+  position: absolute;
+  bottom: -120px;
+  width: 64px;
+  height: 84px;
+  border-radius: 50% 50% 48% 48%;
+  display: grid;
+  place-items:center;
+  transform-origin: 50% 80%;
+  animation: floatUp 6s linear infinite;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+.balloon::after {
+  content: "";
+  position: absolute;
+  bottom: -22px;
+  width: 2px;
+  height: 40px;
+  background: rgba(0,0,0,0.06);
+}
+.balloon.pink { background: linear-gradient(180deg,#ffb6d5,#ff7fb1); }
+.balloon.peach { background: linear-gradient(180deg,#ffd9c7,#ffad86); }
+.balloon.lilac { background: linear-gradient(180deg,#e7d3ff,#caa7ff); }
+.balloon.green { background: linear-gradient(180deg,#bff0d7,#7fe1a6); }
+
+@keyframes floatUp {
+  0% { transform: translateY(0) rotate(-6deg); opacity: 0; }
+  8% { opacity: 1; }
+  50% { transform: translateY(-48vh) rotate(6deg); opacity: 1; }
+  100% { transform: translateY(-110vh) rotate(18deg); opacity: 0; }
+}
+
+/* confetti */
+.confetti-area { position: absolute; inset:0; pointer-events:none; overflow: visible; }
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 14px;
+  opacity: 0.95;
+  transform-origin: center;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity:1; }
+  100% { transform: translateY(120vh) rotate(720deg) scale(.9); opacity:0; }
+}
+
+/* close */
+.celebration-close {
+  margin-top: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  position: relative;
+  z-index: 30;
+}
+@media (max-width:480px) {
+  .celebration-message { font-size:16px; padding: 8px; }
+  .balloon { width: 48px; height:64px; }
+}
+
+
 
     .success-screen { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:120; background:radial-gradient(circle at center, rgba(255,245,247,.8), rgba(255,255,255,.95)); backdrop-filter:blur(6px); padding:24px; }
     .success-screen.show { display:flex; }
@@ -145,11 +265,34 @@
     <div class="ldr-card" role="document">
       <div class="ldr-bg-decor" aria-hidden="true"></div>
       <div class="ldr-message">Gomenne Sayang, kita baru bisa lewat LDR dulu. Pas udah ketemu, kita bisa mengukir cerita kita berdua lebih dari yang udah kita lewati selama ini.</div>
-      <button class="ldr-close" id="ldrClose">Wakatta Kakkoinya Adek..</button>
+      <button class="ldr-close" id="ldrClose">Wakatta Kakkoinya Adek (˶˃𐃷˂˶)</button>
     </div>
   </div>
+  <!-- Celebration overlay -->
+<div class="celebration-overlay" id="celebration" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="celebration-card" role="document">
+    <div class="ribbons" aria-hidden="true">
+      <div class="ribbon ribbon-left"></div>
+      <div class="ribbon ribbon-right"></div>
+    </div>
 
-  <div class="success-screen" id="successScreen" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="celebration-message font-dancing" id="celebrationMessage">
+      Terima kasih telah berkenan hati datang dan masuk ke dalam lembaran hidup Mas ini.
+      Jika Mas boleh agak egois untuk meminta, Mas ingin menjadi pena buat Dek Sayang agar kita bisa menulis berdua lembaran kosong yang menunggu untuk kita baca.
+      Boleh ya Sayangnya Mas, Cantiknya Mas, Valentine-nya Mas?
+    </div>
+
+    <div class="balloon-area" id="balloonArea" aria-hidden="true">
+      <!-- balloons injected by JS -->
+    </div>
+
+    <div class="confetti-area" id="confettiArea" aria-hidden="true"></div>
+
+    <button class="celebration-close" id="celebrationClose">Oteyyy My Safe Place ≽^• ˕ • ྀི≼</button>
+  </div>
+</div>
+
+  <div class="success-screen" id="successScreen"role="dialog" aria-modal="true" aria-hidden="true
     <div class="success-card" role="document">
       <h3 class="font-dancing">Yeay</h3>
       <p>Terima kasih. Pesanmu sudah terkirim dengan manis</p>
@@ -174,6 +317,91 @@
       const framedPhoto = document.getElementById('framedPhoto');
       const ldrNote = document.getElementById('ldrNote');
       const ldrClose = document.getElementById('ldrClose');
+      /* CELEBRATION JS */
+const celebration = document.getElementById('celebration');
+const balloonArea = document.getElementById('balloonArea');
+const confettiArea = document.getElementById('confettiArea');
+const celebrationClose = document.getElementById('celebrationClose');
+
+function makeBalloons(count = 6) {
+  // clear first
+  balloonArea.innerHTML = '';
+  const colors = ['pink','peach','lilac','green','pink','peach'];
+  for (let i=0;i<count;i++){
+    const b = document.createElement('div');
+    b.className = 'balloon ' + (colors[i % colors.length] || 'pink');
+    // random horizontal start inside card width
+    const left = 10 + Math.random() * 80; // percent
+    b.style.left = left + '%';
+    // random duration offset so they are not sync
+    const dur = 5 + Math.random() * 4;
+    b.style.animationDuration = dur + 's';
+    // slow random delay
+    b.style.animationDelay = (Math.random()*1.2) + 's';
+    balloonArea.appendChild(b);
+  }
+}
+
+function makeConfetti(count = 28) {
+  confettiArea.innerHTML = '';
+  const colors = ['#FF2D55','#FFD166','#BDE6A5','#B5A8FF','#FF9AA2','#FFC4D6'];
+  for (let i=0;i<count;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    const sizeW = 6 + Math.random()*12;
+    c.style.width = sizeW + 'px';
+    c.style.height = Math.floor(sizeW*1.2) + 'px';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    // random horizontal start across card
+    const left = Math.random() * 100;
+    c.style.left = left + '%';
+    // random start above viewport area
+    c.style.top = (-10 - Math.random()*10) + 'vh';
+    // random duration
+    const dur = 2.4 + Math.random()*2.2;
+    c.style.animationDuration = dur + 's';
+    c.style.animationDelay = (Math.random()*0.6) + 's';
+    confettiArea.appendChild(c);
+  }
+}
+
+function showCelebration() {
+  // prepare visuals
+  makeBalloons(7);
+  makeConfetti(36);
+  celebration.classList.add('show');
+  celebration.setAttribute('aria-hidden','false');
+
+  // small scale/entrance
+  celebration.querySelector('.celebration-card').animate([
+    { transform: 'translateY(10px) scale(.98)', opacity: 0 },
+    { transform: 'translateY(0) scale(1)', opacity: 1 }
+  ], { duration: 420, easing: 'cubic-bezier(.2,.9,.2,1)' });
+
+  // auto fade confetti after 5.5s, but balloons keep floating
+  setTimeout(() => { if (confettiArea) confettiArea.innerHTML = ''; }, 5800);
+}
+
+function hideCelebration() {
+  celebration.classList.remove('show');
+  celebration.setAttribute('aria-hidden','true');
+  balloonArea.innerHTML = '';
+  confettiArea.innerHTML = '';
+  // reset 'Tidak' button position too
+  resetNoPosition();
+}
+
+// hook up close
+celebrationClose.addEventListener('click', hideCelebration);
+celebration.addEventListener('click', function(e){
+  if (e.target === celebration) hideCelebration();
+});
+
+// modify existing LDR-close handler to show celebration after LDR note closed
+// If you already have: ldrClose.addEventListener('click', function(){ hideLdrNote(); });
+// replace or augment with:
+ldrClose.addEventListener('click', function () { hideLdrNote(); showCelebration(); });
+
 
       let opened = false;
 
@@ -323,7 +551,15 @@
       // initial state
       resetNoPosition();
     });
+document.addEventListener("click", function () {
+  const music = document.getElementById("bgMusic");
+  music.muted = false;
+  music.play();
+}, { once: true });
   </script>
       <div class="wm">@penulis_bujang</div>
+      <audio id="bgMusic" autoplay loop muted>
+  <source src="Lagu.mp3" type="audio/mpeg"></audio>
+
 </body>
 </html>
